@@ -2575,6 +2575,12 @@ a {
 			border-radius: 0.25em;
 			display: block;
 		}
+		.image.center {
+			display: block;
+			margin-left: auto;
+			margin-right: auto;
+			width: 50%;
+		}
 
 		.image.left, .image.right {
 			max-width: 40%;
@@ -2594,6 +2600,14 @@ a {
 			float: right;
 			margin: 0 0 1em 2.5em;
 			top: 0.25em;
+			
+		}
+		.image.left.small {
+			float: left;
+			margin: 0 0 1em 2.5em;
+			top: 0.25em;
+			max-width: 33%;
+			height: 100%;
 		}
 
 		.image.fit {
