@@ -38,6 +38,9 @@ ol, ul {
 	font-weight: bold;
 	list-style-position: outside;
 }
+.clear {
+	clear: both;
+}
 
 blockquote, q {
 	quotes: none;
@@ -155,7 +158,7 @@ a {
 	-ms-transition: color 0.2s ease, border-bottom-color 0.2s ease;
 	transition: color 0.2s ease, border-bottom-color 0.2s ease;
 	border-bottom: dotted 1px rgba(255, 255, 255, 0.35);
-	color: #e0e0e0;
+	color: #0077ee;
 	text-decoration: none;
 }
 
@@ -2602,12 +2605,26 @@ a {
 			top: 0.25em;
 			
 		}
+		.image.right.tiny {
+			float: right;
+			margin: 0 3% 1em 3%;
+			top: 0.25em;
+			max-width: 20%;
+			max-height: 20%;
+		}
 		.image.left.small {
 			float: left;
 			margin: 0 0 1em 2.5em;
 			top: 0.25em;
 			max-width: 30%;
 			height: 100%;
+		}
+		.image.left.tiny {
+			float: left;
+			margin: 0 3% 1em 3%;
+			top: 0.25em;
+			max-width: 20%;
+			max-height: 20%;
 		}
 
 		.image.fit {
@@ -2623,11 +2640,19 @@ a {
 		.image.main {
 			display: block;
 			margin: 0 0 3em 0;
-			width: 100%;
+			max-width: 100%;
+			max-height: 100%
 		}
-
+			.image.main.verticalsmall {
+				max-width: 20%;
+				max-height: 20%;
+			}
 			.image.main img {
 				width: 100%;
+			}
+			.image.main.half {
+				max-width: 50%;
+				max-height: 50%
 			}
 
 /* List */
