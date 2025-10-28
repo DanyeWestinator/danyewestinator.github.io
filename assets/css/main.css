@@ -2524,6 +2524,13 @@ a {
 		.icon.brands:before {
 			font-family: 'Font Awesome 5 Brands';
 		}
+		.icon.bigger {
+			width: 2.5em;
+			height: 2.5em;
+			display: block;
+			text-align: center;
+			line-height: 2.5em;
+		}
 
 		.icon.major {
 			width: 2.5em;
