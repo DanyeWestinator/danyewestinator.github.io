@@ -1,0 +1,598 @@
+<!DOCTYPE HTML>
+<!--
+	Hyperspace by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title>404 - DaneCarstens.net</title>
+		<link rel="icon" type="image/x-icon" href="images/icon02.ico">
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="assets/css/main.css" />
+		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+		<style>
+			/* ====== Retro Breakout ====== */
+			.breakout {
+				max-width: 540px;
+				margin: 2em auto 1em;
+			}
+
+			.breakout-screen {
+				position: relative;
+				background: #000;
+				border: 6px solid #1b1b1b;
+				box-shadow: 0 0 0 2px #000;
+				line-height: 0;
+			}
+
+			.breakout-screen canvas {
+				display: block;
+				width: 100%;
+				height: auto;
+				background: #000;
+				/* keep the pixels crisp & chunky, not smooth */
+				image-rendering: pixelated;
+				image-rendering: crisp-edges;
+				cursor: none;
+			}
+
+			/* CRT scanlines + faint vignette */
+			.breakout-screen::after {
+				content: "";
+				position: absolute;
+				inset: 0;
+				pointer-events: none;
+				background:
+					repeating-linear-gradient(
+						to bottom,
+						rgba(0,0,0,0) 0px,
+						rgba(0,0,0,0) 2px,
+						rgba(0,0,0,0.28) 3px,
+						rgba(0,0,0,0.28) 4px
+					),
+					radial-gradient(ellipse at center, rgba(0,0,0,0) 55%, rgba(0,0,0,0.45) 100%);
+			}
+
+			/* caption uses the site's font, just muted */
+			.breakout-caption {
+				text-align: center;
+				color: #8a8a8a;
+				margin: 12px 0 0;
+				font-size: 0.85em;
+				letter-spacing: 0.5px;
+			}
+			.breakout-caption b { color: #d6d6d6; }
+
+			/* center the footer for this page */
+			#footer .inner { text-align: center; }
+		</style>
+	</head>
+	<body class="is-preload">
+
+		<!-- Header -->
+			<header id="header">
+				<a href="index.html" class="title">DaneCarstens.net</a>
+				<nav>
+					<ul>
+						<li><a href="index.html">Home</a></li>
+						<li><a href="portfolio.html">Portfolio</a></li>
+						<li><a href="arcade.html">Arcade</a></li>
+						<li><a href="blog.html">Blog</a></li>
+					</ul>
+				</nav>
+			</header>
+
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Main -->
+					<section id="main" class="wrapper">
+						<div class="inner">
+							<h1 class="major">Error 404 - Page Not Found</h1>
+
+							<!-- Retro Breakout (canvas) -->
+							<div class="breakout">
+								<div class="breakout-screen">
+									<canvas id="breakout" width="416" height="360" tabindex="0" aria-label="Breakout minigame"></canvas>
+								</div>
+								<p class="breakout-caption">Move: <b>&larr; &rarr;</b> or <b>A</b> / <b>D</b> &nbsp;&bull;&nbsp; Launch: <b>Space</b> &nbsp;&bull;&nbsp; Restart: <b>Esc</b></p>
+							</div>
+
+							<ul class="actions special">
+								<li><a href="index.html" class="button primary">Home</a></li>
+								<li><a href="arcade.html" class="button">More Games</a></li>
+							</ul>
+							<p style="text-align: center; font-size: 0.8em; font-style: italic; color: rgba(255,255,255,0.4);">
+								Disclaimer: this game (and ONLY this game) was vibe coded in about five minutes by Claude while I was bored.
+							</p>
+						</div>
+					</section>
+
+			</div>
+
+		<!-- Footer -->
+			<footer id="footer" class="wrapper alt">
+				<div class="inner">
+					<ul class="menu">
+						<li>&copy; Dane Carstens, 2022. All rights reserved.</li>
+						<li>
+							Design: <a href="https://html5up.net/hyperspace">Hyperspace</a> by
+							<a href="http://html5up.net">HTML5 UP</a>
+						</li>
+					</ul>
+				</div>
+			</footer>
+
+		<!-- Scripts -->
+			<script src="assets/js/jquery.min.js"></script>
+			<script src="assets/js/jquery.scrollex.min.js"></script>
+			<script src="assets/js/jquery.scrolly.min.js"></script>
+			<script src="assets/js/browser.min.js"></script>
+			<script src="assets/js/breakpoints.min.js"></script>
+			<script src="assets/js/util.js"></script>
+			<script src="assets/js/main.js"></script>
+
+		<!-- Breakout game -->
+			<script>
+			(function () {
+				var canvas = document.getElementById('breakout');
+				var ctx = canvas.getContext('2d');
+				ctx.imageSmoothingEnabled = false;
+
+				// ---- layout (internal pixel coords) ----
+				var W = canvas.width, H = canvas.height;
+				var WALL = 8;            // gray frame thickness
+				var TOPBAR = 34;         // score strip above the frame
+				var COLS = 13, ROWS = 7;
+				var fieldLeft = WALL;
+				var fieldRight = W - WALL;
+				var fieldTop = TOPBAR + WALL;
+				var fieldBottom = H;
+
+				var GAP = 2;
+				var cellW = (fieldRight - fieldLeft) / COLS;
+				var brickW = cellW - GAP;
+				var brickH = 13;
+				var rowGap = 4;
+				var brickTop = fieldTop + 8 + (brickH + rowGap); // empty row of space above the top brick row
+
+				// 12 fun colors, all verified >= 6.5:1 contrast against black
+				var PALETTE = ['#FF5252', '#FF9F1C', '#FFE94D', '#5DD62C',
+				               '#2EE6A8', '#29D6D6', '#4CC9F0', '#C77DFF',
+				               '#FF5DA2', '#FF77FF', '#7CFFB2', '#FF8A5C'];
+
+				// "404" spelled in WHITE bricks (rows 2..6). 1 = part of a digit.
+				var D4 = [[1,0,1],[1,0,1],[1,1,1],[0,0,1],[0,0,1]];
+				var D0 = [[1,1,1],[1,0,1],[1,0,1],[1,0,1],[1,1,1]];
+				function isGlyph(row, col) {
+					if (row < 2 || row > 6) return false;
+					var dr = row - 2;
+					if (col >= 1 && col <= 3) return D4[dr][col - 1] === 1; // first 4
+					if (col >= 5 && col <= 7) return D0[dr][col - 5] === 1; // 0
+					if (col >= 9 && col <= 11) return D4[dr][col - 9] === 1; // second 4
+					return false;
+				}
+				function randColor() {
+					return PALETTE[(Math.random() * PALETTE.length) | 0];
+				}
+
+				// brick "bond" variants — same masonry vibe, different seam layouts.
+				// courses = horizontal rows; seams[i] = vertical seam positions (0..1) in course i.
+				var BRICK_VARIANTS = [
+					{ courses: 2, seams: [[0.5], [0.25, 0.75]] },                  // running bond — half bricks (the keeper)
+					{ courses: 2, seams: [[0.33, 0.67], [0.17, 0.5, 0.83]] },      // running bond — third bricks
+					{ courses: 3, seams: [[0.33, 0.67], [0.5], [0.33, 0.67]] },    // running bond — three courses
+					{ courses: 2, seams: [[0.6], [0.3]] }                          // running bond — wide offset bricks
+				];
+				function randVariant() {
+					return (Math.random() * BRICK_VARIANTS.length) | 0;
+				}
+
+				// ---- entities ----
+				var bricks = [];
+				var paddle = { w: 54, h: 8, x: 0, y: H - 26, speed: 5.2 };
+				var ball = { size: 6, x: 0, y: 0, vx: 0, vy: 0, speed: 2.7, stuck: true };
+				var score = 0, lives = 3, stage = 1, state = 'ready'; // ready | playing | dead | win
+				var keys = { left: false, right: false };
+				var aliveCount = 0;
+
+				function buildBricks() {
+					bricks = [];
+					aliveCount = 0;
+					for (var r = 0; r < ROWS; r++) {
+						for (var c = 0; c < COLS; c++) {
+							var glyph = isGlyph(r, c);
+							bricks.push({
+								x: fieldLeft + c * cellW + GAP / 2,
+								y: brickTop + r * (brickH + rowGap),
+								w: brickW,
+								h: brickH,
+								color: glyph ? '#FFFFFF' : randColor(),
+								glyph: glyph,
+								alive: true,
+								variant: randVariant()
+							});
+							aliveCount++;
+						}
+					}
+				}
+
+				function resetBall() {
+					ball.stuck = true;
+					paddle.x = (W - paddle.w) / 2;
+					ball.x = paddle.x + paddle.w / 2 - ball.size / 2;
+					ball.y = paddle.y - ball.size - 1;
+					ball.vx = 0;
+					ball.vy = 0;
+				}
+
+				function launch() {
+					if (ball.stuck) {
+						ball.stuck = false;
+						ball.vx = (Math.random() < 0.5 ? -1 : 1) * ball.speed * 0.6;
+						ball.vy = -ball.speed;
+						state = 'playing';
+					}
+				}
+
+				function newGame() {
+					score = 0;
+					lives = 3;
+					stage = 1;
+					state = 'ready';
+					buildBricks();
+					resetBall();
+				}
+
+				// clear a stage → advance the counter, rebuild the wall, KEEP the score (and lives)
+				function nextStage() {
+					stage++;
+					state = 'ready';
+					buildBricks();
+					resetBall();
+				}
+
+				// ---- input ----
+				function onKeyDown(e) {
+					var k = e.key;
+					if (k === 'ArrowLeft' || k === 'a' || k === 'A') { keys.left = true; }
+					else if (k === 'ArrowRight' || k === 'd' || k === 'D') { keys.right = true; }
+					else if (k === ' ' || k === 'Spacebar') {
+						if (state === 'ready' || state === 'playing') launch();
+						else if (state === 'win') nextStage(); // next stage, score persists
+					}
+					else if (k === 'Escape' || k === 'Esc') {
+						newGame(); // restart the whole game (stage 1, score reset)
+					}
+					if (k === 'ArrowLeft' || k === 'ArrowRight' || k === ' ' || k === 'Spacebar') {
+						e.preventDefault();
+					}
+				}
+				function onKeyUp(e) {
+					var k = e.key;
+					if (k === 'ArrowLeft' || k === 'a' || k === 'A') keys.left = false;
+					else if (k === 'ArrowRight' || k === 'd' || k === 'D') keys.right = false;
+				}
+				window.addEventListener('keydown', onKeyDown);
+				window.addEventListener('keyup', onKeyUp);
+
+				// pointer control (mouse / touch) as a bonus
+				function pointerMove(clientX) {
+					var rect = canvas.getBoundingClientRect();
+					var scale = W / rect.width;
+					var px = (clientX - rect.left) * scale;
+					paddle.x = px - paddle.w / 2;
+				}
+				canvas.addEventListener('mousemove', function (e) {
+					if (state === 'playing' || state === 'ready') pointerMove(e.clientX);
+				});
+				canvas.addEventListener('click', function () {
+					if (state === 'ready' || state === 'playing') launch();
+					else if (state === 'win') nextStage();
+					else newGame();
+					canvas.focus();
+				});
+				canvas.addEventListener('touchmove', function (e) {
+					if (e.touches.length) { pointerMove(e.touches[0].clientX); e.preventDefault(); }
+				}, { passive: false });
+
+				// ---- update ----
+				function clamp(v, lo, hi) { return v < lo ? lo : (v > hi ? hi : v); }
+
+				function update(dt) {
+					// paddle
+					if (keys.left) paddle.x -= paddle.speed * dt;
+					if (keys.right) paddle.x += paddle.speed * dt;
+					paddle.x = clamp(paddle.x, fieldLeft, fieldRight - paddle.w);
+
+					if (ball.stuck) {
+						ball.x = paddle.x + paddle.w / 2 - ball.size / 2;
+						ball.y = paddle.y - ball.size - 1;
+						return;
+					}
+					if (state === 'win') { fwUpdate(dt); return; }
+					if (state !== 'playing') return;
+
+					ball.x += ball.vx * dt;
+					ball.y += ball.vy * dt;
+
+					// walls
+					if (ball.x < fieldLeft) { ball.x = fieldLeft; ball.vx = Math.abs(ball.vx); }
+					if (ball.x + ball.size > fieldRight) { ball.x = fieldRight - ball.size; ball.vx = -Math.abs(ball.vx); }
+					if (ball.y < fieldTop) { ball.y = fieldTop; ball.vy = Math.abs(ball.vy); }
+
+					// paddle
+					if (ball.y + ball.size >= paddle.y &&
+						ball.y + ball.size <= paddle.y + paddle.h + 6 &&
+						ball.x + ball.size >= paddle.x &&
+						ball.x <= paddle.x + paddle.w &&
+						ball.vy > 0) {
+						ball.y = paddle.y - ball.size;
+						ball.vy = -Math.abs(ball.vy);
+						// english based on where it hit the paddle
+						var hit = (ball.x + ball.size / 2 - (paddle.x + paddle.w / 2)) / (paddle.w / 2);
+						ball.vx = clamp(hit, -1, 1) * ball.speed * 1.15;
+					}
+
+					// bricks (one hit per frame)
+					for (var i = 0; i < bricks.length; i++) {
+						var b = bricks[i];
+						if (!b.alive) continue;
+						if (ball.x + ball.size > b.x && ball.x < b.x + b.w &&
+							ball.y + ball.size > b.y && ball.y < b.y + b.h) {
+							var oL = (ball.x + ball.size) - b.x;
+							var oR = (b.x + b.w) - ball.x;
+							var oT = (ball.y + ball.size) - b.y;
+							var oB = (b.y + b.h) - ball.y;
+							var minX = Math.min(oL, oR);
+							var minY = Math.min(oT, oB);
+							if (minX < minY) ball.vx = -ball.vx; else ball.vy = -ball.vy;
+							b.alive = false;
+							aliveCount--;
+							score += b.glyph ? 5 : 1;
+							if (aliveCount === 0) { state = 'win'; fwReset(); }
+							break;
+						}
+					}
+
+					// lost the ball
+					if (ball.y > fieldBottom) {
+						lives--;
+						if (lives <= 0) { state = 'dead'; }
+						else { resetBall(); state = 'ready'; }
+					}
+				}
+
+				// ---- render ----
+				function pixelText(text, x, y, size, color, align) {
+					ctx.fillStyle = color;
+					ctx.font = 'bold ' + size + 'px "Courier New", monospace';
+					ctx.textBaseline = 'top';
+					ctx.textAlign = align || 'left';
+					ctx.fillText(text, x, y);
+					ctx.textAlign = 'left';
+				}
+
+				// lighten (f>1) / darken (f<1) a #rrggbb color
+				function shade(hex, f) {
+					var n = parseInt(hex.slice(1), 16);
+					var r = Math.min(255, Math.round(((n >> 16) & 255) * f));
+					var g = Math.min(255, Math.round(((n >> 8) & 255) * f));
+					var b = Math.min(255, Math.round((n & 255) * f));
+					return 'rgb(' + r + ',' + g + ',' + b + ')';
+				}
+
+				// mortar geometry for a variant: horizontal course dividers + vertical seams
+				function masonrySeams(x, y, w, h, v, color) {
+					ctx.fillStyle = color;
+					var n = v.courses;
+					for (var i = 0; i < n; i++) {
+						var cy = y + Math.round(i * h / n);
+						var cyEnd = y + Math.round((i + 1) * h / n);
+						if (i > 0) ctx.fillRect(x, cy, w, 1);          // course divider
+						var seams = v.seams[i] || [];
+						for (var k = 0; k < seams.length; k++) {
+							ctx.fillRect(x + Math.round(seams[k] * w), cy, 1, cyEnd - cy);
+						}
+					}
+				}
+
+				function drawBrick(b) {
+					var x = b.x | 0, y = b.y | 0, w = Math.ceil(b.w), h = b.h;
+					var v = BRICK_VARIANTS[b.variant];
+
+					if (b.glyph) {
+						// black "404" brick: white border + white mortar in the chosen bond
+						ctx.fillStyle = '#FFFFFF';
+						ctx.fillRect(x, y, w, h);
+						ctx.fillStyle = '#000';
+						ctx.fillRect(x + 2, y + 2, w - 4, h - 4);
+						masonrySeams(x + 2, y + 2, w - 4, h - 4, v, '#FFFFFF');
+						return;
+					}
+
+					// colored brick: base + per-course bevel + dark mortar in the chosen bond
+					var base = b.color;
+					var hi = shade(base, 1.45);
+					var lo = shade(base, 0.82);
+					var mortar = shade(base, 0.42);
+					var n = v.courses;
+
+					ctx.fillStyle = base;
+					ctx.fillRect(x, y, w, h);
+					// lit top + shadowed foot of each course
+					for (var i = 0; i < n; i++) {
+						var cy = y + Math.round(i * h / n);
+						var cyEnd = y + Math.round((i + 1) * h / n);
+						ctx.fillStyle = hi; ctx.fillRect(x, cy, w, 1);
+						ctx.fillStyle = lo; ctx.fillRect(x, cyEnd - 1, w, 1);
+					}
+					// dark mortar: side frame + seams
+					ctx.fillStyle = mortar;
+					ctx.fillRect(x, y, 1, h);
+					ctx.fillRect(x + w - 1, y, 1, h);
+					masonrySeams(x, y, w, h, v, mortar);
+				}
+
+				/* ===== FIREWORKS — "stage clear" celebration ===== */
+				var fw = { rockets: [], sparks: [], timer: 0 };
+
+				function fwReset() {
+					fw.rockets = []; fw.sparks = []; fw.timer = 0;
+					// instant bursts so the celebration starts right away
+					fwBurst(fieldLeft + (fieldRight - fieldLeft) * 0.35, fieldTop + 70, PALETTE[2]);
+					fwBurst(fieldLeft + (fieldRight - fieldLeft) * 0.65, fieldTop + 110, PALETTE[6]);
+				}
+				function fwSpawnRocket() {
+					fw.rockets.push({
+						x: fieldLeft + 20 + Math.random() * (fieldRight - fieldLeft - 40),
+						y: fieldBottom - 12,
+						vx: (Math.random() - 0.5) * 0.7,
+						vy: -(4.6 + Math.random() * 1.8),
+						color: PALETTE[Math.random() * PALETTE.length | 0],
+						fuse: 55 + Math.random() * 30
+					});
+				}
+				function fwBurst(x, y, color) {
+					var n = 22 + (Math.random() * 12 | 0);
+					for (var i = 0; i < n; i++) {
+						var ang = (i / n) * Math.PI * 2 + Math.random() * 0.25;
+						var sp = 0.9 + Math.random() * 1.9;
+						fw.sparks.push({
+							x: x, y: y,
+							vx: Math.cos(ang) * sp,
+							vy: Math.sin(ang) * sp,
+							color: Math.random() < 0.28 ? '#FFFFFF' : color,
+							life: 48 + Math.random() * 34,
+							size: 2 + (Math.random() * 2 | 0)
+						});
+					}
+					// bright central flash
+					fw.sparks.push({ x: x, y: y, vx: 0, vy: 0, color: '#FFFFFF', life: 8, size: 5, flash: true });
+				}
+				function fwUpdate(dt) {
+					fw.timer -= dt;
+					if (fw.timer <= 0) { fwSpawnRocket(); fw.timer = 14 + Math.random() * 22; }
+					for (var i = fw.rockets.length - 1; i >= 0; i--) {
+						var r = fw.rockets[i];
+						r.x += r.vx * dt; r.y += r.vy * dt; r.vy += 0.045 * dt;
+						r.fuse -= dt;
+						if (r.fuse <= 0 || r.vy >= 0 || r.y <= fieldTop + 28) { fwBurst(r.x, r.y, r.color); fw.rockets.splice(i, 1); }
+					}
+					for (var j = fw.sparks.length - 1; j >= 0; j--) {
+						var s = fw.sparks[j];
+						s.x += s.vx * dt; s.y += s.vy * dt;
+						if (!s.flash) { s.vy += 0.055 * dt; s.vx *= 0.99; }
+						s.life -= dt;
+						if (s.life <= 0) fw.sparks.splice(j, 1);
+					}
+				}
+				function fwDraw() {
+					var i, r, j, s;
+					for (i = 0; i < fw.rockets.length; i++) {
+						r = fw.rockets[i];
+						ctx.fillStyle = r.color;
+						ctx.fillRect(r.x | 0, r.y | 0, 2, 3);
+						ctx.fillStyle = 'rgba(255,255,255,0.45)';
+						ctx.fillRect(r.x | 0, (r.y + 3) | 0, 1, 2);
+					}
+					for (j = 0; j < fw.sparks.length; j++) {
+						s = fw.sparks[j];
+						if (!s.flash && s.life < 16 && ((s.life | 0) % 2 === 0)) continue; // end-of-life twinkle
+						ctx.fillStyle = s.color;
+						ctx.fillRect(s.x | 0, s.y | 0, s.size, s.size);
+					}
+				}
+
+				// score strip + gray frame (redrawn over everything each frame)
+				function drawChrome() {
+					ctx.fillStyle = '#000';            // clear score strip (win screen never clears it)
+					ctx.fillRect(0, 0, W, TOPBAR);
+					pixelText(('00000' + score).slice(-5), WALL + 2, 8, 18, '#e8e8e8', 'left');
+					pixelText('STAGE ' + stage, W / 2, 11, 13, '#9fd9ff', 'center');
+					for (var l = 0; l < lives; l++) {
+						ctx.fillStyle = '#e8e8e8';
+						ctx.fillRect(W - WALL - 10 - l * 12, 12, 8, 8);
+					}
+					ctx.fillStyle = '#7d7d7d';
+					ctx.fillRect(0, TOPBAR, W, WALL);                 // top
+					ctx.fillRect(0, TOPBAR, WALL, H - TOPBAR);        // left
+					ctx.fillRect(W - WALL, TOPBAR, WALL, H - TOPBAR); // right
+					ctx.fillStyle = '#3a3a3a';
+					ctx.fillRect(WALL, fieldTop, fieldRight - fieldLeft, 1);
+				}
+
+				// "stage clear" screen: pixel fireworks with trails (score persists)
+				function drawWin() {
+					// confine the fireworks + trails to the play field
+					ctx.save();
+					ctx.beginPath();
+					ctx.rect(fieldLeft, fieldTop, fieldRight - fieldLeft, fieldBottom - fieldTop);
+					ctx.clip();
+					ctx.fillStyle = 'rgba(0,0,0,0.30)'; // fade instead of clear → spark trails
+					ctx.fillRect(fieldLeft, fieldTop, fieldRight - fieldLeft, fieldBottom - fieldTop);
+					fwDraw();
+					ctx.restore();
+					pixelText('STAGE CLEAR', W / 2, H / 2 - 34, 24, '#FFE94D', 'center');
+					pixelText('SPACE FOR NEXT STAGE', W / 2, H / 2 + 0, 12, '#ffffff', 'center');
+					drawChrome();
+				}
+
+				function draw() {
+					if (state === 'win') { drawWin(); return; }
+
+					// background
+					ctx.fillStyle = '#000';
+					ctx.fillRect(0, 0, W, H);
+
+					drawChrome();
+
+					// bricks (textured; 404 bricks are black with a white border)
+					for (var i = 0; i < bricks.length; i++) {
+						if (bricks[i].alive) drawBrick(bricks[i]);
+					}
+
+					// paddle (square ends, flat)
+					ctx.fillStyle = '#dcdcdc';
+					ctx.fillRect(paddle.x | 0, paddle.y, paddle.w, paddle.h);
+
+					// ball (square, retro)
+					ctx.fillStyle = '#ffffff';
+					ctx.fillRect(ball.x | 0, ball.y | 0, ball.size, ball.size);
+
+					// overlays
+					if (state === 'ready') {
+						pixelText('PRESS SPACE', W / 2, fieldBottom - 70, 14, '#ffffff', 'center');
+					} else if (state === 'dead') {
+						banner('GAME OVER', 'ESC TO RESTART');
+					}
+				}
+
+				function banner(line1, line2) {
+					ctx.fillStyle = 'rgba(0,0,0,0.72)';
+					ctx.fillRect(fieldLeft, H / 2 - 34, fieldRight - fieldLeft, 64);
+					pixelText(line1, W / 2, H / 2 - 26, 20, '#FFE94D', 'center');
+					pixelText(line2, W / 2, H / 2 + 4, 12, '#cccccc', 'center');
+				}
+
+				// ---- loop ----
+				var last = 0;
+				function frame(now) {
+					if (!last) last = now;
+					var dt = (now - last) / (1000 / 60); // normalize to 60fps steps
+					last = now;
+					if (dt > 3) dt = 3;
+					update(dt);
+					draw();
+					requestAnimationFrame(frame);
+				}
+
+				newGame();
+				requestAnimationFrame(frame);
+			})();
+			</script>
+
+	</body>
+</html>
